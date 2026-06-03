@@ -6,7 +6,7 @@ A collaborative C++ project implementing a Smart Priority Elevator System with e
 
 | Member | Branch | Responsibility |
 |--------|--------|----------------|
-| Jyothiradithya | `jyothiradithya` | Controller & Scheduling (Person class, Priority Assignment, Nearest Lift Selection) |
+| Jyothiradithya | `jy` | Controller & Scheduling (Person class, Priority Assignment, Nearest Lift Selection) |
 | HY | `hy` | Lift Operations & Simulation (Lift class, Movement Logic, Boarding, Capacity Handling) |
 
 ## Branch Strategy (No Merge Conflicts!)
@@ -14,7 +14,7 @@ A collaborative C++ project implementing a Smart Priority Elevator System with e
 ```
 main              ← Final integration only (DO NOT code here directly)
 ├── hy            ← HY's working branch
-└── jyothiradithya ← Jyothiradithya's working branch
+└── jy             ← Jyothiradithya's working branch
 ```
 
 **Rules:**
