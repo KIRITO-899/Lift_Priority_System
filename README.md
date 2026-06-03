@@ -22,21 +22,7 @@ main              ← Final integration only (DO NOT code here directly)
 - Never edit the other person's files
 - Merge into `main` only during integration (Phase 4)
 
-## File Ownership
 
-| File | Owner |
-|------|-------|
-| `Lift.cpp` / `Lift.h` | HY |
-| `simulation.cpp` | HY |
-| `Controller.cpp` / `Controller.h` | Jyothiradithya |
-| `Person.cpp` / `Person.h` | Jyothiradithya |
-| `main.cpp` | Both (merge carefully during Phase 4) |
-
-## Build Instructions
-
-```bash
-g++ Lift.cpp simulation.cpp -o lift_system
-./lift_system
 ```
 
 ## Development Phases
