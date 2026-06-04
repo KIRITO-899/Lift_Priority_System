@@ -1,8 +1,5 @@
-// TEST GIT UPDATE
 #ifndef LIFT_H
 #define LIFT_H
-
-int nm;
 
 #include<iostream>
 #include<vector>
@@ -11,8 +8,6 @@ int nm;
 #define LIFT_B 2
 #define LIFT_C 0
 #define LIFT_D 3
-
-//this is just for cheking....
 
 using namespace std;
 
