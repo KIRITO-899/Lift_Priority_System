@@ -62,6 +62,7 @@ public:
     // Passengers 
     bool boardPassenger(PersonType type = PersonType::Normal);
     bool dropPassenger(PersonType type = PersonType::Normal);
+    void servePassengers(int source, int destination, PersonType type);
 
     // Emergency
     void activateEmergency(int destinationFloor);

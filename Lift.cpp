@@ -116,6 +116,19 @@ bool Lift::dropPassenger(PersonType type) {
     return true;
 }
 
+void Lift::servePassengers(int source,int destination,PersonType type)
+{
+    moveTo(source);
+    openDoors();
+    if (boardPassenger(type))
+    {
+        closeDoors();
+        moveTo(destination);
+        openDoors();
+        dropPassenger(type);
+        closeDoors();
+    }
+}
 
 // ── Emergency ─────────────────────────────────────────
 // activateEmergency: locks the lift on a non-stop route to destinationFloor.
