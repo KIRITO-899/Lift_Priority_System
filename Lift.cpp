@@ -51,7 +51,7 @@ void Lift::moveTo(int targetFloor) {
 
     // Emergency mode: go straight to destination, no stops in between
     if (isEmergency) {
-        cout << "[Lift " << lift_id << " ] ⚠ EMERGENCY — non-stop to floor "
+        cout << "[Lift " << lift_id << " ] !! EMERGENCY -- non-stop to floor "
              << targetFloor << " (skipping all intermediate stops)\n";
     } else {
         cout << "[Lift " << lift_id << " ] Heading from floor " << currentFloor
@@ -132,7 +132,7 @@ void Lift::servePassengers(int source, int destination, PersonType type)
     // Restore status to Available after the trip ends
     status    = LiftStatus::Available;
     direction = Direction::Idle;
-    cout << "[Lift " << lift_id << " ] Trip complete — now Available.\n";
+    cout << "[Lift " << lift_id << " ] Trip complete -- now Available.\n";
 
     if (isEmergency) {
         deactivateEmergency();
@@ -147,7 +147,7 @@ void Lift::activateEmergency(int destinationFloor) {
     isEmergency           = true;
     emergencyDestination  = destinationFloor;
     status                = LiftStatus::Busy;
-    cout << "[Lift " << lift_id << " ] ⚠ EMERGENCY MODE ACTIVATED — destination: floor "
+    cout << "[Lift " << lift_id << " ] !! EMERGENCY MODE ACTIVATED -- destination: floor "
          << destinationFloor << "\n";
 }
 
@@ -185,14 +185,14 @@ void Lift::displayStatus() const {
         case Direction::Idle: dirStr = "Idle"; break;
     }
 
-    cout << "┌─────────────────────────────┐\n"
-         << "│  Lift ID     : " << lift_id                << "\n"
-         << "│  Floor       : " << currentFloor      << "\n"
-         << "│  Status      : " << statusStr         << "\n"
-         << "│  Direction   : " << dirStr            << "\n"
-         << "│  Passengers  : " << currentPassengers << "\n"
-         << "│  Space Used  : " << usedSpace << "/" << totalSpace << "\n"
-         << "│  Emergency   : " << (isEmergency ? "YES ⚠" : "No") << "\n"
-         << "└─────────────────────────────┘\n";
+    cout << "+-----------------------------+\n"
+         << "|  Lift ID     : " << lift_id                << "\n"
+         << "|  Floor       : " << currentFloor      << "\n"
+         << "|  Status      : " << statusStr         << "\n"
+         << "|  Direction   : " << dirStr            << "\n"
+         << "|  Passengers  : " << currentPassengers << "\n"
+         << "|  Space Used  : " << usedSpace << "/" << totalSpace << "\n"
+         << "|  Emergency   : " << (isEmergency ? "YES (!!)" : "No") << "\n"
+         << "+-----------------------------+\n";
 }
 
