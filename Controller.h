@@ -1,5 +1,5 @@
 #pragma once
-#include "Person.h"
+#include "jPerson.h"
 #include <vector>
 #include <queue>
 
