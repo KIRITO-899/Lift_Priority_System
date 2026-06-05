@@ -116,7 +116,7 @@ bool Lift::dropPassenger(PersonType type) {
     return true;
 }
 
-void Lift::servePassengers(int source,int destination,PersonType type)
+void Lift::servePassengers(int source, int destination, PersonType type)
 {
     moveTo(source);
     openDoors();
@@ -127,6 +127,15 @@ void Lift::servePassengers(int source,int destination,PersonType type)
         openDoors();
         dropPassenger(type);
         closeDoors();
+    }
+
+    // Restore status to Available after the trip ends
+    status    = LiftStatus::Available;
+    direction = Direction::Idle;
+    cout << "[Lift " << lift_id << " ] Trip complete — now Available.\n";
+
+    if (isEmergency) {
+        deactivateEmergency();
     }
 }
 
