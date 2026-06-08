@@ -8,12 +8,14 @@
 #define EMERGENCY 100
 #define DOCTOR 90
 #define STAFF 70
+#define NORMAL_CHECK_UP 30
 #define VISITOR 20
 
 #define EMERGENCY_ID 213
 #define DOCTOR_ID 214
 #define STAFF_ID 215
-#define VISITOR_ID 216
+#define NORMAL_CHECK_UP_ID 216 
+#define VISITOR_ID 217
 
 using namespace std;
 
@@ -50,6 +52,9 @@ class Person{
             }
             else if(id==STAFF_ID){
                 Priority=STAFF;
+            }
+            else if(id==NORMAL_CHECK_UP_ID){
+                Priority=NORMAL_CHECK_UP;
             }
             else{
                 Priority=VISITOR;

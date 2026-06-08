@@ -13,10 +13,11 @@ priority_queue<int> pq_1;
 
 vector<Person> people;
 
-
 void assign_Lift(Person p1){
-    Lift l[4];
     vector<int> lv = {1, 2, 3, 4};
+    Lift l[4];
+    bool emergency=true;
+    int emLift=-1;
     while(true){
         p1.input();
         int lift_fl;
@@ -44,16 +45,34 @@ void assign_Lift(Person p1){
                     assignedIndex = i;
                 }
             }
+            emLift=lift_fl;
             bool found = false;
             for(int i = 0; i < lv.size(); i++){
-                if(lv[i] == lift_fl){
+                if(lv[i] == emLift){
                     lv.erase(lv.begin() + i);
                     found = true;
                     break;
                 }
             }
-            cout<<"Emergency mode assained for lift: "<<lift_fl<<endl;
+            cout<<"Emergency mode assained for lift: "<<emLift<<endl;
             cout << "Take Lift " << lift_fl << endl;
+        }
+        else if(p1.Priority==DOCTOR || p1.Priority==STAFF){
+            if(emLift==-1){
+                for(int i=0;i<4;i++){
+                    int diff = abs(p1.currntFloor - l[i].CurrentFloor);
+                    if(diff < curr){
+                        curr = diff;
+                        lift_fl = l[i].LiftNumber;
+                    }
+                }
+                cout << "Take Lift " << lift_fl << endl;
+            }
+
+            else{
+                cout<<"Take Emergency Lift!!!"<<endl;
+                cout << "Take Lift " << emLift << endl;
+            }
         }
         else if(p1.Priority!=EMERGENCY){
             for(int i=0;i<4;i++){
@@ -70,7 +89,7 @@ void assign_Lift(Person p1){
             cout<<endl;
             cout << "Take Lift " << lift_fl << endl;
         }
-        cout<<"Still Emergency??... ";
+        cout<<"Still Emergency??... (1/0) ";
         int em;
         cin>>em;
         if(em==0){
