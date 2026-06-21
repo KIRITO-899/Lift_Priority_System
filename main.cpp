@@ -38,11 +38,18 @@ void assign_Lift(Person p1){
         int assignedIndex=-1;
         if(p1.Priority==EMERGENCY){
             for(int i=0;i<4;i++){
-                int diff = abs(p1.currntFloor - l[i].CurrentFloor);
-                if(diff < curr){
-                    curr = diff;
-                    lift_fl = l[i].LiftNumber;
-                    assignedIndex = i;
+                if(l[i].Available==true){
+                    int diff = abs(p1.currntFloor - l[i].CurrentFloor);
+                    if(diff < curr){
+                        curr = diff;
+                        lift_fl = l[i].LiftNumber;
+                        assignedIndex = i;
+                    }
+                }
+            }
+            for(int i=0;i<4;i++){
+                if(lift_fl==l[i].LiftNumber){
+                    l[i].Available=false;
                 }
             }
             emLift=lift_fl;
@@ -60,10 +67,12 @@ void assign_Lift(Person p1){
         else if(p1.Priority==DOCTOR || p1.Priority==STAFF){
             if(emLift==-1){
                 for(int i=0;i<4;i++){
-                    int diff = abs(p1.currntFloor - l[i].CurrentFloor);
-                    if(diff < curr){
-                        curr = diff;
-                        lift_fl = l[i].LiftNumber;
+                    if(l[i].Available==true){
+                        int diff = abs(p1.currntFloor - l[i].CurrentFloor);
+                        if(diff < curr){
+                            curr = diff;
+                            lift_fl = l[i].LiftNumber;
+                        }
                     }
                 }
                 cout << "Take Lift " << lift_fl << endl;
@@ -76,10 +85,12 @@ void assign_Lift(Person p1){
         }
         else if(p1.Priority!=EMERGENCY){
             for(int i=0;i<4;i++){
-                int diff = abs(p1.currntFloor - l[i].CurrentFloor);
-                if(diff < curr){
-                    curr = diff;
-                    lift_fl = l[i].LiftNumber;
+                if(l[i].Available==true){
+                    int diff = abs(p1.currntFloor - l[i].CurrentFloor);
+                    if(diff < curr){
+                        curr = diff;
+                        lift_fl = l[i].LiftNumber;
+                    }
                 }
             }
             cout<<"Avaliable Lifts: "<<endl;

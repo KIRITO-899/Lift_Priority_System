@@ -18,6 +18,7 @@ class Lift{
         int NextFloor;
         int ReachFloor;
         int Mode;
+        bool Available=true;
 
         vector<int> v;
 
