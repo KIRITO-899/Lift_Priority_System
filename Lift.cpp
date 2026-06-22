@@ -1,10 +1,11 @@
 #include "Lift.h"
 
+
 // Constructor
 //   void functions  — always succeed, no return needed
 //   bool functions  — can fail, caller reacts to the result
 
-Lift::Lift(int id, int startFloor, int totalSpace)
+Lift::Lift(int id, int startFloor, int totalSpace, int doorHoldSecs)
     : lift_id(id),
       currentFloor(startFloor),
       totalSpace(totalSpace),
@@ -12,6 +13,8 @@ Lift::Lift(int id, int startFloor, int totalSpace)
       currentPassengers(0),
       status(LiftStatus::Available),
       direction(Direction::Idle),
+      doorsOpen(false),
+      doorHoldSeconds(doorHoldSecs),
       isEmergency(false),
       emergencyDestination(-1)
     {}
@@ -73,11 +76,39 @@ void Lift::moveTo(int targetFloor) {
 // ── Doors ─────────────────────────────────────────────
 
 void Lift::openDoors() {
+    doorsOpen = true;
     cout << "[Lift " << lift_id << " ] Doors OPENING at floor " << currentFloor << "\n";
 }
 
 void Lift::closeDoors() {
+    doorsOpen = false;
     cout << "[Lift " << lift_id << " ] Doors CLOSING at floor " << currentFloor << "\n";
+}
+
+// holdDoorOpen: opens the doors, announces hold time, then closes.
+// NOTE: closeDoorManually() can pre-empt the close if called before this returns.
+void Lift::holdDoorOpen() {
+    openDoors();
+    cout << "[Lift " << lift_id << " ] Doors open for "
+         << doorHoldSeconds << " second(s). Press CLOSE to shut early.\n";
+
+    // If close button was already pressed before we got here, close immediately
+    if (!doorsOpen) {
+        cout << "[Lift " << lift_id << " ] Close button pressed -- doors shut early.\n";
+        return;
+    }
+
+    closeDoors();
+}
+
+// closeDoorManually: simulates pressing the physical Close button inside the lift.
+void Lift::closeDoorManually() {
+    if (!doorsOpen) {
+        cout << "[Lift " << lift_id << " ] Doors are already closed.\n";
+        return;
+    }
+    doorsOpen = false;
+    cout << "[Lift " << lift_id << " ] [CLOSE BUTTON] Door-close requested by passenger.\n";
 }
 
 
@@ -119,14 +150,12 @@ bool Lift::dropPassenger(PersonType type) {
 void Lift::servePassengers(int source, int destination, PersonType type)
 {
     moveTo(source);
-    openDoors();
+    holdDoorOpen();       // open + wait for boarding, then auto-close
     if (boardPassenger(type))
     {
-        closeDoors();
         moveTo(destination);
-        openDoors();
+        holdDoorOpen();   // open + wait for alighting, then auto-close
         dropPassenger(type);
-        closeDoors();
     }
 
     // Restore status to Available after the trip ends

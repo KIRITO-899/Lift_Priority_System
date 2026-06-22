@@ -41,11 +41,15 @@ public:
     LiftStatus status;
     Direction direction;
 
+    // Door state
+    bool doorsOpen;             // true while doors are open
+    int  doorHoldSeconds;       // how long doors stay open (default 3s)
+
     // Emergency mode
     bool isEmergency;
     int  emergencyDestination; // no unnecessary stops
 
-    Lift(int id, int startFloor = 0, int totalSpace = 100);
+    Lift(int id, int startFloor = 0, int totalSpace = 100, int doorHoldSecs = 3);
 
     // Space helper — returns how many units a person type consumes
     static int spaceOf(PersonType type);
@@ -58,6 +62,8 @@ public:
     // Doors
     void openDoors();
     void closeDoors();
+    void holdDoorOpen();        // auto-closes after doorHoldSeconds
+    void closeDoorManually();   // simulates pressing the Close button
 
     // Passengers 
     bool boardPassenger(PersonType type = PersonType::Normal);
