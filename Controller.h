@@ -14,18 +14,6 @@ using namespace std;
 //   - Assign requests to lifts
 //   - Emergency queue logic (priority queue)
 
-/*class Controller {
-public:
-    int numLifts;
-    int numFloors;
-
-    Controller(int lifts, int floors);
-
-    void addPassengerRequest(Person p);
-    int findNearestLift(int floor);
-    void assignRequest(Person p);
-    void displayQueue() const;
-};*/
 class Controller{
     public:
     priority_queue<int> pq_1;
