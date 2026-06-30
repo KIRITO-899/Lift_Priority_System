@@ -52,20 +52,70 @@ void Lift::moveTo(int targetFloor) {
         return;
     }
 
-    // Emergency mode: go straight to destination, no stops in between
+    Direction travelDir = (targetFloor > currentFloor) ? Direction::Up : Direction::Down;
+
+    // Emergency: go non-stop, skip any middle floor
     if (isEmergency) {
         cout << "[Lift " << lift_id << " ] !! EMERGENCY -- non-stop to floor "
              << targetFloor << " (skipping all intermediate stops)\n";
-    } else {
-        cout << "[Lift " << lift_id << " ] Heading from floor " << currentFloor
-             << " to floor " << targetFloor << " ...\n";
+        while (currentFloor != targetFloor) {
+            if (currentFloor < targetFloor) {moveUp();
+             } else                       {moveDown();}
+        }
+        direction = Direction::Idle;
+        cout << "[Lift " << lift_id << " ] Arrived at floor " << currentFloor << "\n";
+        return;
     }
 
+    // Sort internal destinations to travel accordingly
+    if (travelDir == Direction::Up){
+        sort(destinations.begin(), destinations.end());
+    }  else{
+        sort(destinations.begin(), destinations.end(), greater<int>());
+    }
+
+    cout << "[Lift " << lift_id << " ] Heading from floor " << currentFloor
+         << " to floor " << targetFloor << " ...\n";
+
     while (currentFloor != targetFloor) {
-        if (currentFloor < targetFloor)
-            moveUp();
-        else
-            moveDown();
+        if (currentFloor < targetFloor) { moveUp();
+        }else                          {moveDown();}
+
+        if (currentFloor == targetFloor) {break;} // final stop handled by caller
+
+        // Check internal destination — passenger inside wants off here
+        auto dit = find(destinations.begin(), destinations.end(), currentFloor);
+        bool internalStop = (dit != destinations.end());
+        if (internalStop){
+            destinations.erase(dit);
+        }
+
+        // Check floor call — someone outside pressed UP/DOWN on this floor
+        // Only stop if: direction matches AND there is room to board
+        bool floorStop = false;
+        if (usedSpace < totalSpace) {
+            for (auto it = floorCalls.begin(); it != floorCalls.end(); ++it) {
+                if (it->floor == currentFloor && it->wantedDir == travelDir) {
+                    floorStop = true;
+                    floorCalls.erase(it);
+                    break;
+                }
+            }
+        }
+
+        if (internalStop || floorStop) {
+            openDoors();
+            if (internalStop){
+                cout << "[Lift " << lift_id << " ] Passenger alighting at floor "
+                     << currentFloor << "\n";
+            }
+            if (floorStop){
+                cout << "[Lift " << lift_id << " ] Picking up passenger at floor "
+                     << currentFloor << " (going "
+                     << (travelDir == Direction::Up ? "Up" : "Down") << ")\n";
+            }
+            closeDoors();
+        }
     }
 
     direction = Direction::Idle;
@@ -147,8 +197,8 @@ bool Lift::dropPassenger(PersonType type) {
     return true;
 }
 
-void Lift::servePassengers(int source, int destination, PersonType type)
-{
+void Lift::servePassengers(int source, int destination, PersonType type) {
+
     moveTo(source);
     holdDoorOpen();       // open + wait for boarding, then auto-close
     if (boardPassenger(type))
@@ -168,16 +218,74 @@ void Lift::servePassengers(int source, int destination, PersonType type)
     }
 }
 
+// ── Floor selection ───────────────────────────────────
+
+void Lift::requestFloor(int floor) {
+    if (floor == currentFloor) {
+        cout << "[Lift " << lift_id << " ] Already at floor " << floor << " -- no need to queue.\n";
+        return;
+    }
+    if (find(destinations.begin(), destinations.end(), floor) == destinations.end()) {
+        destinations.push_back(floor);
+        cout << "[Lift " << lift_id << " ] Floor " << floor << " requested.\n";
+    } else {
+        cout << "[Lift " << lift_id << " ] Floor " << floor << " already queued.\n";
+    }
+}
+
+void Lift::floorCall(int floor, Direction wantedDir) {
+    for (auto& hc : floorCalls)
+        if (hc.floor == floor && hc.wantedDir == wantedDir) {
+            cout << "[Lift " << lift_id << " ] floor call at floor " << floor << " already registered.\n";
+            return;
+        }
+    floorCalls.push_back({floor, wantedDir});
+    cout << "[Lift " << lift_id << " ] floor call: floor " << floor
+         << " going " << (wantedDir == Direction::Up ? "Up" : "Down") << " registered.\n";
+}
+
+void Lift::clearFloor(int floor) {
+    auto it = find(destinations.begin(), destinations.end(), floor);
+    if (it != destinations.end()) {
+        destinations.erase(it);
+        cout << "[Lift " << lift_id << " ] Floor " << floor << " served and cleared.\n";
+    }
+}
+
+void Lift::displayDestinations() const {
+    if (destinations.empty() && floorCalls.empty()) {
+        cout << "[Lift " << lift_id << " ] No pending floor requests.\n";
+        return;
+    }
+    if (!destinations.empty()) {
+        cout << "[Lift " << lift_id << " ] Internal stops : ";
+        for (int f : destinations) cout << f << " ";
+        cout << "\n";
+    }
+    if (!floorCalls.empty()) {
+        cout << "[Lift " << lift_id << " ] floor calls     : ";
+        for (auto& hc : floorCalls)
+            cout << hc.floor << "(" << (hc.wantedDir == Direction::Up ? "Up" : "Down") << ") ";
+        cout << "\n";
+    }
+}
+
+
 // ── Emergency ─────────────────────────────────────────
 // activateEmergency: locks the lift on a non-stop route to destinationFloor.
 // deactivateEmergency: clears emergency mode after arrival.
 
 void Lift::activateEmergency(int destinationFloor) {
-    isEmergency           = true;
-    emergencyDestination  = destinationFloor;
-    status                = LiftStatus::Busy;
+    isEmergency          = true;
+    emergencyDestination = destinationFloor;
+    status               = LiftStatus::Busy;
+    bool hadRequests = !destinations.empty() || !floorCalls.empty();
+    destinations.clear();
+    floorCalls.clear();
     cout << "[Lift " << lift_id << " ] !! EMERGENCY MODE ACTIVATED -- destination: floor "
          << destinationFloor << "\n";
+    if (hadRequests)
+        cout << "[Lift " << lift_id << " ] All pending requests cleared for emergency.\n";
 }
 
 void Lift::deactivateEmergency() {

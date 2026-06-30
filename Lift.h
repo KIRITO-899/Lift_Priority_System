@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -31,6 +32,11 @@ enum class Direction {
     Idle
 };
 
+struct FloorCall {
+    int floor;
+    Direction wantedDir;   // direction the waiting passenger intends to travel
+};
+
 class Lift {
 public:
     int lift_id;
@@ -44,6 +50,10 @@ public:
     // Door state
     bool doorsOpen;             // true while doors are open
     int  doorHoldSeconds;       // how long doors stay open (default 3s)
+
+    // Floor requests from passengers
+    vector<int>      destinations;  // internal: passenger inside pressed a floor button
+    vector<FloorCall> floorCalls;     // external: someone outside pressed UP or DOWN on a floor
 
     // Emergency mode
     bool isEmergency;
@@ -65,10 +75,16 @@ public:
     void holdDoorOpen();        // auto-closes after doorHoldSeconds
     void closeDoorManually();   // simulates pressing the Close button
 
-    // Passengers 
+    // Passengers
     bool boardPassenger(PersonType type = PersonType::Normal);
     bool dropPassenger(PersonType type = PersonType::Normal);
     void servePassengers(int source, int destination, PersonType type);
+
+    // Floor selection
+    void requestFloor(int floor);                        // inside: passenger presses a floor button
+    void floorCall(int floor, Direction wantedDir);       // outside: passenger presses UP or DOWN
+    void clearFloor(int floor);                          // remove internal floor once served
+    void displayDestinations() const;                    // show all pending requests
 
     // Emergency
     void activateEmergency(int destinationFloor);
