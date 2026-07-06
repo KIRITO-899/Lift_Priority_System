@@ -1,6 +1,6 @@
 #include "Lift.h"
 
-using namespace std;   // added here since 'using namespace std' was removed from the header
+using namespace std;  
 
 
 // Constructor
@@ -34,7 +34,6 @@ int Lift::spaceOf(PersonType type) {
 
 // Movement
 
-// BUG 1 fix: added upper-bound guard — lift cannot go above MAX_FLOOR
 void Lift::moveUp() {
     if (currentFloor >= MAX_FLOOR) {
         cout << "[Lift " << lift_id << " ] Already at top floor (" << MAX_FLOOR << "). Cannot go higher.\n";
@@ -46,7 +45,6 @@ void Lift::moveUp() {
     cout << "[Lift " << lift_id << " ] Moving Up -> Floor " << currentFloor << "\n";
 }
 
-// BUG 1 fix: added lower-bound guard — lift cannot go below floor 0
 void Lift::moveDown() {
     if (currentFloor <= 0) {
         cout << "[Lift " << lift_id << " ] Already at ground floor (0). Cannot go lower.\n";
@@ -147,7 +145,6 @@ void Lift::closeDoors() {
     cout << "[Lift " << lift_id << " ] Doors CLOSING at floor " << currentFloor << "\n";
 }
 
-// BUG 2 fix: removed always-false `if (!doorsOpen)` dead code branch.
 // openDoors() sets doorsOpen=true so the old check could never trigger.
 void Lift::holdDoorOpen() {
     openDoors();
@@ -204,7 +201,6 @@ bool Lift::dropPassenger(PersonType type) {
     return true;
 }
 
-// BUG 3 fix: status is now only set to Available and emergency deactivated
 // when boarding actually succeeds. If boarding fails (lift full) we still
 // return to idle but print an appropriate message instead of "Trip complete".
 void Lift::servePassengers(int source, int destination, PersonType type) {
