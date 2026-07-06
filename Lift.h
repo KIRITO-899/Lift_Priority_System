@@ -4,14 +4,14 @@
 #include <string>
 #include <algorithm>
 
-using namespace std;
+const int MAX_FLOOR = 10;  // highest floor index (floors 0 to MAX_FLOOR)
 
 // ── Space allocation per person type ──────────────────
 // Total lift space = 100 
-// Normal person  → 10 
-// Staff          → 20  (emergency only)
-// Doctor         → 30  (emergency only)
-// EmergencyPatient → 50 units
+// Normal person      →  10 units
+// Staff              →  20 units  (emergency only)
+// Doctor             →  30 units  (emergency only)
+// EmergencyPatient   →  50 units
 // ──────────────────────────────────────────────────────
 
 enum class PersonType {
@@ -52,8 +52,8 @@ public:
     int  doorHoldSeconds;       // how long doors stay open (default 3s)
 
     // Floor requests from passengers
-    vector<int>      destinations;  // internal: passenger inside pressed a floor button
-    vector<FloorCall> floorCalls;     // external: someone outside pressed UP or DOWN on a floor
+    std::vector<int>       destinations;  // internal: passenger inside pressed a floor button
+    std::vector<FloorCall> floorCalls;    // external: someone outside pressed UP or DOWN on a floor
 
     // Emergency mode
     bool isEmergency;
@@ -72,7 +72,7 @@ public:
     // Doors
     void openDoors();
     void closeDoors();
-    void holdDoorOpen();        // auto-closes after doorHoldSeconds
+    void holdDoorOpen();        // opens doors then closes after hold period
     void closeDoorManually();   // simulates pressing the Close button
 
     // Passengers
@@ -81,10 +81,10 @@ public:
     void servePassengers(int source, int destination, PersonType type);
 
     // Floor selection
-    void requestFloor(int floor);                        // inside: passenger presses a floor button
-    void floorCall(int floor, Direction wantedDir);       // outside: passenger presses UP or DOWN
-    void clearFloor(int floor);                          // remove internal floor once served
-    void displayDestinations() const;                    // show all pending requests
+    void requestFloor(int floor);                         // inside: passenger presses a floor button
+    void floorCall(int floor, Direction wantedDir);        // outside: passenger presses UP or DOWN
+    void clearFloor(int floor);                           // remove internal floor once served
+    void displayDestinations() const;                     // show all pending requests
 
     // Emergency
     void activateEmergency(int destinationFloor);

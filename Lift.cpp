@@ -1,5 +1,7 @@
 #include "Lift.h"
 
+using namespace std;   // added here since 'using namespace std' was removed from the header
+
 
 // Constructor
 //   void functions  — always succeed, no return needed
@@ -32,14 +34,24 @@ int Lift::spaceOf(PersonType type) {
 
 // Movement
 
+// BUG 1 fix: added upper-bound guard — lift cannot go above MAX_FLOOR
 void Lift::moveUp() {
+    if (currentFloor >= MAX_FLOOR) {
+        cout << "[Lift " << lift_id << " ] Already at top floor (" << MAX_FLOOR << "). Cannot go higher.\n";
+        return;
+    }
     currentFloor++;
     direction = Direction::Up;
     status    = LiftStatus::Busy;
     cout << "[Lift " << lift_id << " ] Moving Up -> Floor " << currentFloor << "\n";
 }
 
+// BUG 1 fix: added lower-bound guard — lift cannot go below floor 0
 void Lift::moveDown() {
+    if (currentFloor <= 0) {
+        cout << "[Lift " << lift_id << " ] Already at ground floor (0). Cannot go lower.\n";
+        return;
+    }
     currentFloor--;
     direction = Direction::Down;
     status    = LiftStatus::Busy;
@@ -59,18 +71,18 @@ void Lift::moveTo(int targetFloor) {
         cout << "[Lift " << lift_id << " ] !! EMERGENCY -- non-stop to floor "
              << targetFloor << " (skipping all intermediate stops)\n";
         while (currentFloor != targetFloor) {
-            if (currentFloor < targetFloor) {moveUp();
-             } else                       {moveDown();}
+            if (currentFloor < targetFloor) { moveUp();   }
+            else                            { moveDown(); }
         }
         direction = Direction::Idle;
         cout << "[Lift " << lift_id << " ] Arrived at floor " << currentFloor << "\n";
         return;
     }
 
-    // Sort internal destinations to travel accordingly
-    if (travelDir == Direction::Up){
+    // Sort internal destinations to travel in the correct order
+    if (travelDir == Direction::Up) {
         sort(destinations.begin(), destinations.end());
-    }  else{
+    } else {
         sort(destinations.begin(), destinations.end(), greater<int>());
     }
 
@@ -78,15 +90,15 @@ void Lift::moveTo(int targetFloor) {
          << " to floor " << targetFloor << " ...\n";
 
     while (currentFloor != targetFloor) {
-        if (currentFloor < targetFloor) { moveUp();
-        }else                          {moveDown();}
+        if (currentFloor < targetFloor) { moveUp();   }
+        else                            { moveDown(); }
 
-        if (currentFloor == targetFloor) {break;} // final stop handled by caller
+        if (currentFloor == targetFloor) { break; } // final stop handled by caller
 
         // Check internal destination — passenger inside wants off here
         auto dit = find(destinations.begin(), destinations.end(), currentFloor);
         bool internalStop = (dit != destinations.end());
-        if (internalStop){
+        if (internalStop) {
             destinations.erase(dit);
         }
 
@@ -105,11 +117,11 @@ void Lift::moveTo(int targetFloor) {
 
         if (internalStop || floorStop) {
             openDoors();
-            if (internalStop){
+            if (internalStop) {
                 cout << "[Lift " << lift_id << " ] Passenger alighting at floor "
                      << currentFloor << "\n";
             }
-            if (floorStop){
+            if (floorStop) {
                 cout << "[Lift " << lift_id << " ] Picking up passenger at floor "
                      << currentFloor << " (going "
                      << (travelDir == Direction::Up ? "Up" : "Down") << ")\n";
@@ -135,19 +147,14 @@ void Lift::closeDoors() {
     cout << "[Lift " << lift_id << " ] Doors CLOSING at floor " << currentFloor << "\n";
 }
 
-// holdDoorOpen: opens the doors, announces hold time, then closes.
-// NOTE: closeDoorManually() can pre-empt the close if called before this returns.
+// BUG 2 fix: removed always-false `if (!doorsOpen)` dead code branch.
+// openDoors() sets doorsOpen=true so the old check could never trigger.
 void Lift::holdDoorOpen() {
     openDoors();
     cout << "[Lift " << lift_id << " ] Doors open for "
-         << doorHoldSeconds << " second(s). Press CLOSE to shut early.\n";
-
-    // If close button was already pressed before we got here, close immediately
-    if (!doorsOpen) {
-        cout << "[Lift " << lift_id << " ] Close button pressed -- doors shut early.\n";
-        return;
-    }
-
+         << doorHoldSeconds << " second(s).\n";
+    // In a real system a timer/thread would wait here.
+    // For simulation, close immediately after boarding/alighting.
     closeDoors();
 }
 
@@ -197,24 +204,30 @@ bool Lift::dropPassenger(PersonType type) {
     return true;
 }
 
+// BUG 3 fix: status is now only set to Available and emergency deactivated
+// when boarding actually succeeds. If boarding fails (lift full) we still
+// return to idle but print an appropriate message instead of "Trip complete".
 void Lift::servePassengers(int source, int destination, PersonType type) {
-
     moveTo(source);
-    holdDoorOpen();       // open + wait for boarding, then auto-close
-    if (boardPassenger(type))
-    {
+    holdDoorOpen();   // open doors for boarding
+
+    if (boardPassenger(type)) {
         moveTo(destination);
-        holdDoorOpen();   // open + wait for alighting, then auto-close
+        holdDoorOpen();   // open doors for alighting
         dropPassenger(type);
-    }
 
-    // Restore status to Available after the trip ends
-    status    = LiftStatus::Available;
-    direction = Direction::Idle;
-    cout << "[Lift " << lift_id << " ] Trip complete -- now Available.\n";
+        status    = LiftStatus::Available;
+        direction = Direction::Idle;
+        cout << "[Lift " << lift_id << " ] Trip complete -- now Available.\n";
 
-    if (isEmergency) {
-        deactivateEmergency();
+        if (isEmergency) {
+            deactivateEmergency();
+        }
+    } else {
+        // Boarding failed (lift full) — abort trip, return to idle
+        status    = LiftStatus::Available;
+        direction = Direction::Idle;
+        cout << "[Lift " << lift_id << " ] Boarding failed -- lift returning to idle.\n";
     }
 }
 
@@ -324,12 +337,11 @@ void Lift::displayStatus() const {
 
     cout << "+-----------------------------+\n"
          << "|  Lift ID     : " << lift_id                << "\n"
-         << "|  Floor       : " << currentFloor      << "\n"
-         << "|  Status      : " << statusStr         << "\n"
-         << "|  Direction   : " << dirStr            << "\n"
-         << "|  Passengers  : " << currentPassengers << "\n"
+         << "|  Floor       : " << currentFloor           << "\n"
+         << "|  Status      : " << statusStr              << "\n"
+         << "|  Direction   : " << dirStr                 << "\n"
+         << "|  Passengers  : " << currentPassengers      << "\n"
          << "|  Space Used  : " << usedSpace << "/" << totalSpace << "\n"
          << "|  Emergency   : " << (isEmergency ? "YES (!!)" : "No") << "\n"
          << "+-----------------------------+\n";
 }
-
