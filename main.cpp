@@ -19,7 +19,6 @@ int main(){
     while(true){
         Person p;
         c.assign_Lift(p);
-        c.displayAllLifts();
         int s;
         cout<<endl;
         cout<<"New Person?? (1/0): ";
