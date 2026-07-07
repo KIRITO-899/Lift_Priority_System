@@ -99,6 +99,9 @@ public:
 
             // Execute the trip
             lifts[idx].servePassengers(p1.currntFloor, p1.DestFloor, ptype);
+
+            // Release the emergency lift back to the pool once the trip ends
+            releaseEmergency();
         }
 
         // ── DOCTOR or STAFF ───────────────────────────────
@@ -128,14 +131,29 @@ public:
                 cout << "[Controller] No available lift for passenger!\n";
                 return;
             }
+            //  Only show lifts that are truly available right now
             cout << "[Controller] Available Lifts: ";
-            for (int id : lv) cout << id << " ";
+            for (int id : lv) {
+                int i = indexOfLift(id);
+                if (i >= 0 && lifts[i].isAvailable())
+                    cout << id << " ";
+            }
             cout << "\n";
             cout << "[Controller] Take Lift " << lift_fl << "\n";
 
             int idx = indexOfLift(lift_fl);
             lifts[idx].servePassengers(p1.currntFloor, p1.DestFloor, ptype);
         }
+    }
+
+    // Release the emergency-reserved lift back to the pool 
+    // Call this after the emergency trip has finished.
+    void releaseEmergency() {
+        if (emLift == -1) return;              
+        cout << "[Controller] Emergency lift " << emLift
+             << " released back to pool.\n";
+        lv.push_back(emLift);                 
+        emLift = -1;                       
     }
 
     // ── Display status of all lifts ──
