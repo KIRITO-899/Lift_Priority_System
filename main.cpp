@@ -8,10 +8,8 @@
 #include"Person.h"
 #include"Controller.h"
 
-using namespace std;
 
-priority_queue<int> pq_1;
-vector<Person> people;
+using namespace std;
 
 int main(){
     srand(time(0));
