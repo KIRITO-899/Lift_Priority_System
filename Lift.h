@@ -39,11 +39,11 @@ struct FloorCall {
 
 class Lift {
 public:
-    int lift_id;
-    int currentFloor;
-    int totalSpace;        // (default 100)
-    int usedSpace;         // space currently occupied
-    int currentPassengers; // number of people inside
+    int LiftID;
+    int CurrentFloor;
+    int TotalSpace;        // (default 100)
+    int UsedSpace;         // space currently occupied
+    int CurrentPassengers; // number of people inside
     LiftStatus status;
     Direction direction;
 
