@@ -2,8 +2,6 @@
 #define PERSON_H
 
 #include<iostream>
-#include<vector>
-#include<queue>
 
 #define EMERGENCY 100
 #define DOCTOR 90
@@ -19,7 +17,6 @@
 
 using namespace std;
 
-extern priority_queue<int> pq_1;
 
 class Person{
     public:
@@ -59,11 +56,7 @@ class Person{
             else{
                 Priority=VISITOR;
             }
-
-            pq_1.push(Priority);
         }
 };
-
-extern vector<Person> people;
 
 #endif
